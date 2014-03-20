@@ -37,7 +37,7 @@ static void sig_int(int signo)
       exit(0);
 }
  
-int main(void)
+int main(int argc, char** argv)
 {
 	char a = 'a';
 	int b;
@@ -47,7 +47,7 @@ int main(void)
 		perror("socket creat failed!");
 		exit(1);
 	}
-	int len;
+	int len, i;
 	
 	struct sockaddr_in server_addr, from;
 	int addr_len = sizeof(from);
@@ -117,7 +117,18 @@ int main(void)
 				 sendto(sockfd,&a,sizeof(a),0,(struct sockaddr *)&server_addr,sizeof(server_addr));
 				 len = recvfrom(sockfd, &b, sizeof(b), 0,
 				(struct sockaddr *)&server_addr, &addr_len);
+				
 				printf("0x%x\n" ,b);
+				printf("0x%x\n" ,atoi(argv[1]));
+				for (i = 1; i < argc; i++)
+				{
+					if ( b == atoi(argv[i]))
+					{
+						ipq_set_verdict(h, ipq_packet->packet_id, 0,ipq_packet->data_len,ipq_packet->payload); 
+						printf(" drop\n");
+					}
+				}
+						
 				 ipq_set_verdict(h, ipq_packet->packet_id, 1,ipq_packet->data_len,ipq_packet->payload); 
            }
       }

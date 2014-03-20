@@ -4,5 +4,6 @@ typedef struct my
  {
   int icmp_off;
   unsigned int drop_ip; 
+  int drop_port;
  }OWN;
 

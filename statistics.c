@@ -764,7 +764,7 @@ static void printResults(u_int64_t tot_usec, u_int64_t last_tot_usec)
 		perror("sendto failed!");
 		exit(1);
 		}
-		printf("\nthis file over**************************\n");
+		printf("******************************************************************\n");
 		
   
 }

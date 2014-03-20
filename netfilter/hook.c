@@ -24,6 +24,7 @@ EXPORT_SYMBOL_GPL(nl_sk);
 
 static int icmp_off = 0;
 static unsigned int drop_ip = 0;
+static int drop_port = -1;
 
 
 void input (struct sk_buff* __skb)
@@ -39,6 +40,7 @@ void input (struct sk_buff* __skb)
 	pid = nlh->nlmsg_pid;
     icmp_off = ((OWN *)NLMSG_DATA(nlh))->icmp_off;
     drop_ip = ((OWN *)NLMSG_DATA(nlh))->drop_ip;
+	drop_port = ((OWN *)NLMSG_DATA(nlh))->drop_port;
 	//sendnlmsg("I am from kernel!");
    
 
@@ -95,7 +97,8 @@ unsigned int hook_func(unsigned int hooknum,
          //unsigned int sip = ntohs(th->source);
          printk("saddr:%d.%d.%d.%d,sport:%u\n", NIPQUAD(iph->saddr),ntohs(th->source));
          printk("daddr:%d.%d.%d.%d,dport:%u\n", NIPQUAD(iph->daddr),ntohs(th->dest));
-         if(iph->saddr ==drop_ip)
+		 printk("%d\n", drop_port);
+         if(iph->saddr == drop_ip || ntohs(th->source) == (short)drop_port)
           {
             printk("now we drop tcp from %d.%d.%d.%d\n", NIPQUAD(iph->saddr));
              return NF_DROP;

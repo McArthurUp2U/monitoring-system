@@ -12,4 +12,4 @@ statistic:statistics.c
 ipq:	
 	gcc libipq.c -o ipq $(LIB2)
 clean:
-	rm ./pcapReader ./ipq ./netfilter/nf_user
+	rm ./pcapReader ./ipq ./netfilter/nf_user statistics

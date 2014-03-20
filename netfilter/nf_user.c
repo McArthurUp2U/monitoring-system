@@ -40,6 +40,7 @@ void init_own(OWN** own)
  *own = (OWN*)malloc(sizeof(OWN));
  (*own)->icmp_off = 0;
  (*own)->drop_ip = 0; 
+ (*own)->drop_port = -1;
 }        
 
 int main(int argc, char* argv[])
@@ -48,7 +49,7 @@ int main(int argc, char* argv[])
    OWN* own = NULL;
    init_own(&own);
 
-   while((c=getopt_long(argc, argv, "hid:", longopts, NULL))!=-1)   
+   while((c=getopt_long(argc, argv, "hid:p:", longopts, NULL))!=-1)   
     {
       switch(c)
        {
@@ -60,6 +61,11 @@ int main(int argc, char* argv[])
          case 'd':
           {
             own->drop_ip = inet_addr(optarg);
+            break;
+          }
+		 case 'p':
+          {
+            own->drop_port = atoi(optarg);
             break;
           }
          case 'h':
@@ -93,7 +99,7 @@ int main(int argc, char* argv[])
    nlh->nlmsg_pid = getpid(); /* self pid */
    nlh->nlmsg_flags = 0;
    /* Fill in the netlink message payload */
-   printf("%d, %d\n", own->icmp_off, own->drop_ip);
+   printf("%d, %d %d\n", own->icmp_off, own->drop_ip, own->drop_port);
    memcpy(NLMSG_DATA(nlh),own ,sizeof(OWN));
 
    iov.iov_base = (void *)nlh;
@@ -107,8 +113,7 @@ int main(int argc, char* argv[])
    sendmsg(sock_fd, &msg, 0);
    
    memset(nlh,0,NLMSG_SPACE(MAX_PAYLOAD));
-   recvmsg(sock_fd, &msg, 0);
-   printf("Received message: %s\n",(char *) NLMSG_DATA(nlh));
+
    close(sock_fd);
    free(own);
    return 0;
