@@ -1,1 +1,0 @@
-cmd_/home/wangs/monitoring-system/netfilter/hook.ko := ld -r -m elf_i386  --build-id -o /home/wangs/monitoring-system/netfilter/hook.ko /home/wangs/monitoring-system/netfilter/hook.o /home/wangs/monitoring-system/netfilter/hook.mod.o
