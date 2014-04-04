@@ -13,3 +13,12 @@ ipq:
 	gcc libipq.c -o ipq $(LIB2)
 clean:
 	rm ./pcapReader ./ipq ./netfilter/nf_user statistics
+	find -name '*.ko' -exec rm -f {} \;
+	find -name '*.o' -exec rm -f {}  \;
+	find -name '[Mm]odule*' -exec rm -f {} \;
+	rm -f ./netfilter/hook.mod.c 
+install:
+	insmod ./netfilter/hook.ko
+	modprobe ip_queue
+uninstall: clean
+	rmmod hook
