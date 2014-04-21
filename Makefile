@@ -22,3 +22,5 @@ install:
 	modprobe ip_queue
 uninstall: clean
 	rmmod hook
+
+.PHONY: all clean install uninstall
