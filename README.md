@@ -8,4 +8,4 @@ modprobe ip_queue
 insmod hook.ko
 ###Some bugs
 can not run over 2 .sh in the same time
-No configure scripts
+No configure scripts. maybe use autoconfig,automake in the future.
