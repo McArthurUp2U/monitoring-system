@@ -6,7 +6,7 @@ print_help()
 Usage:
 	-a                        | show ethernet device
 	-i <ip>                   | Specify a ip that comes into to be denied.
-	-s <device>               | Statistics refresh seconds
+	-s <device>               | Statistics of NIC device 
 	-p <port>                 | Specify a port comes into to be denied.
 	-l                        | List protocols index number
 	-c                        | Cancel port and ip deny. 
@@ -16,14 +16,14 @@ Usage:
 	-t <seconds>              | refresh time'
 }
 t=1
-trap 'if test ! -z $a ; then  kill -4 $a  ;exit ; else iptables -D INPUT -p tcp -j QUEUE ;fi' 2
+trap 'if test ! -z $a ; then  kill -4 $a  ;exit ; else iptables -D INPUT -p tcp -j QUEUE; kill -4 $b ;exit ;fi' 2
 if test $# = 0 
 then print_help
 fi
-while getopts ":ahs:i:cp:r:v:t:" opt
+while getopts ":ahs:i:clp:r:v:t:" opt
 do
 	case $opt in 
-	a) /sbin/ifconfig|sed -n 'N;/eth/p';; 
+	a) /sbin/ifconfig|sed -n 'N;/eth/p';;
 	t) t=$OPTARG;;
 	h) print_help ;;
 	s) ./statistics -i $OPTARG &
@@ -37,8 +37,11 @@ do
 	i) ./netfilter/nf_user -d $OPTARG;;
 	p) ./netfilter/nf_user -p $OPTARG;;
 	c) ./netfilter/nf_user;;
-	l) cat ./protocols;;
-	r) iptables -I INPUT -p tcp -j QUEUE ; ./pcapReader -i packet_cache & ./ipq $OPTARG;;
+	l) less  ./protocols;;
+	r) iptables -I INPUT -p tcp -j QUEUE ; ./pcapReader -i packet_cache & 
+		b=`ps -ef|grep pcapReader |grep -v grep |awk '{print $2}'`
+		echo $b
+		./ipq $OPTARG ;;
 	v) ./statistics -i $OPTARG -v &
 		a=`ps -ef|grep statistics |grep -v grep |awk '{print $2}'`
         echo $a
@@ -48,6 +51,6 @@ do
             sleep $t
         done;;
 
-	*) echo noo;;
+	*) echo bad options!!!;;
 	esac
 done	
