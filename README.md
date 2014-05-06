@@ -1,9 +1,11 @@
 ###Usage
-It can be a sample of netlink ,iptables and ip_queue
-Also use nDPI
+It is the implementation of my undergraduate Thesis.
+It also can be a sample of netlink ,iptables and ip_queue and  nDPI.
 ###Environment
-kernel 2.6.28
-Do NOT forget:
+testing:
+*kernel 2.6.28
+*Fedora 10
+###Do NOT forget:
 modprobe ip_queue
 insmod hook.ko
 ###Some bugs
