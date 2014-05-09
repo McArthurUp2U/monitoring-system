@@ -1,10 +1,11 @@
 INC=-I /home/wangs/monitoring-system/include/
 LIB1=/home/wangs/monitoring-system/lib/libndpi.a -lpcap 
 LIB2=-lipq
-FLAGS=-g
+LIB3=-lpthread
+FLAGS=-g -Wall
 CC=gcc
 
-all:pcapReader ipq statistic ./netfilter/hook.c
+all:pcapReader ipq statistic ./netfilter/hook.c icmp_host_find ht
 	make -C ./netfilter
 pcapReader:pcapReader.c Makefile ./libipq.c 
 	$(CC) $(FLAGS) $(INC) pcapReader.c -o pcapReader $(LIB1)
@@ -12,6 +13,10 @@ statistic:statistics.c
 	$(CC) $(FLAGS) $(INC) statistics.c -o statistics $(LIB1)
 ipq:	
 	$(CC) libipq.c -o ipq $(LIB2)
+icmp_host_find: icmp_host_find.o
+	$(CC) $(FLAGS) icmp_host_find.o -o icmp_host_find $(LIB3)
+ht: hostTraffic.o
+	$(CC) $(FLAGS) hostTraffic.o -o ht $(LIB1)
 clean:
 	rm ./pcapReader ./ipq ./netfilter/nf_user statistics
 	find -name '*.ko' -exec rm -f {} \;

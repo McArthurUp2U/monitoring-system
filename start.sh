@@ -20,7 +20,7 @@ trap 'if test ! -z $a ; then  kill -4 $a  ;exit ; else iptables -D INPUT -p tcp 
 if test $# = 0 
 then print_help
 fi
-while getopts ":ahs:i:clp:r:v:t:" opt
+while getopts ":afhs:i:clp:r:v:t:" opt
 do
 	case $opt in 
 	a) /sbin/ifconfig|sed -n 'N;/eth/p';;
@@ -50,6 +50,7 @@ do
             kill -2 $a
             sleep $t
         done;;
+	f) ./icmp_host_find $2 $3;;
 
 	*) echo bad options!!!;;
 	esac
