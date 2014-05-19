@@ -13,10 +13,10 @@ statistic:statistics.c
 	$(CC) $(FLAGS) $(INC) statistics.c -o statistics $(LIB1)
 ipq:	
 	$(CC) libipq.c -o ipq $(LIB2)
-icmp_host_find: icmp_host_find.o
-	$(CC) $(FLAGS) icmp_host_find.o -o icmp_host_find $(LIB3)
-ht: hostTraffic.o
-	$(CC) $(FLAGS) hostTraffic.o -o ht $(LIB1)
+icmp_host_find: icmp_host_find.c
+	$(CC) $(FLAGS) icmp_host_find.c -o icmp_host_find $(LIB3)
+ht: hostTraffic.c
+	$(CC) $(FLAGS) hostTraffic.c -o ht $(LIB1)
 clean:
 	rm ./pcapReader ./ipq ./netfilter/nf_user statistics
 	find -name '*.ko' -exec rm -f {} \;
