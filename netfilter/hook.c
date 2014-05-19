@@ -83,6 +83,11 @@ unsigned int hook_func(unsigned int hooknum,
             printk("now we drop icmp from %d.%d.%d.%d\n", NIPQUAD(iph->saddr));
             return NF_DROP;
           }
+         if(iph->saddr == drop_ip)
+          {
+            printk("now we drop tcp from %d.%d.%d.%d\n", NIPQUAD(iph->saddr));
+             return NF_DROP;
+          }
          break;
        }
      case IPPROTO_TCP:{
