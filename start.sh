@@ -13,14 +13,16 @@ Usage:
 	-r  <procotols>]          | Disable procotols .
 	-h                        | This help
 	-v                        | Verbose statistics 
-	-t <seconds>              | refresh time'
+	-t <seconds>              | refresh time
+	-f 						  | LAN host find
+	-n 						  | Calculate LAN traffic'						
 }
 t=1
 trap 'if test ! -z $a ; then  kill -4 $a  ;exit ; else iptables -D INPUT -p tcp -j QUEUE; kill -4 $b ;exit ;fi' 2
 if test $# = 0 
 then print_help
 fi
-while getopts ":afhs:i:clp:r:v:t:" opt
+while getopts ":anfhs:i:clp:r:v:t:" opt
 do
 	case $opt in 
 	a) /sbin/ifconfig|sed -n 'N;/eth/p';;
@@ -50,8 +52,15 @@ do
             kill -2 $a
             sleep $t
         done;;
-	f) ./icmp_host_find $2 $3;;
+	f) ./icmp_host_find ;;
+	n) ./ht &
+		b=`ps -ef|grep ./ht |grep -v grep |awk '{print $2}'`
+		while true 
+	   	do
+			kill -2 $b
+			sleep $t
+		done;;
 
 	*) echo bad options!!!;;
 	esac
-done	
+done

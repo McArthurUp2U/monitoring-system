@@ -18,7 +18,7 @@ icmp_host_find: icmp_host_find.c
 ht: hostTraffic.c
 	$(CC) $(FLAGS) hostTraffic.c -o ht $(LIB1)
 clean:
-	rm ./pcapReader ./ipq ./netfilter/nf_user statistics
+	rm ./pcapReader ./ipq ./netfilter/nf_user statistics ht icmp_host_find
 	find -name '*.ko' -exec rm -f {} \;
 	find -name '*.o' -exec rm -f {}  \;
 	find -name '[Mm]odule*' -exec rm -f {} \;

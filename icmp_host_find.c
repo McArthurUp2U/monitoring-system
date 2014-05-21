@@ -1,5 +1,15 @@
+/*
+ * Using ICMP to discovery hosts in LAN
+ * some bugs :
+ * 	netmask can't be larger than 255.255.255.0,so fix it to 255.255.255.0
+ * 	Must run this program several times so that the result is stable.
+ * 
+ * 	Email:wangsquirrel@gmail.com
+ */
 #include <stdio.h> 
 #include <stdlib.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
 #include <string.h> 
 #include <signal.h> 
 #include <arpa/inet.h> 
@@ -14,21 +24,25 @@
 #include <errno.h> 
 #include <pthread.h>
 #include <fcntl.h>
+#include <net/if.h>
 
 
 #define PACKET_SIZE 4096
 #define MAX_SEND_TIMES 1
 #define ICMP_DATA_LEN 56
-const int nMaxIfNum = 8;
 
-char host[255][20];
+char host[1030][20];
 int host_num = 0;
+unsigned long end_addr=0l;
+unsigned long start_addr=0l;
 
 
 struct timeval tv;// recv timeout
 int size = 50 * 1024;// recv buffer
 struct protoent *protocol;
 pthread_mutex_t lock; 
+
+void find_end_start_addr(char *);
 
 
 void * find_host(void *);
@@ -116,7 +130,7 @@ void recv_packet(int sockfd, char * recvpacket, struct sockaddr_in from)
         {   
 			if(errno == EWOULDBLOCK || errno== EAGAIN )
 			{
-				printf("recvfrom Timeout!!!!\n");
+				printf("recvfrom Timeout!!!! %u\n", pthread_self());
 				pthread_exit(NULL);
 			}    
         }
@@ -182,16 +196,10 @@ int main(int argc,char *argv[])
 	int s = 0;
 	int ip_num = 0;
 	int i = 0;
-    unsigned long start_addr=0l;
-		unsigned long end_addr=0l;
-		pthread_t * ntid;
+	pthread_t * ntid;
+	find_end_start_addr("eth0_rename");
+	printf("%u %u\n",start_addr, end_addr);
 			
-    if(argc<3)
-    {     
-			  printf("usage:%s [start IP address] [end IP address]\n",argv[0]);
-            exit(1);
-    }
-
     if( (protocol=getprotobyname("icmp") )==NULL)
     {      
 			perror("getprotobyname");
@@ -200,18 +208,18 @@ int main(int argc,char *argv[])
     setuid(getuid());
 
   /*是ip地址*/
-	start_addr = inet_network(argv[1]);
-	end_addr   = inet_network(argv[2]);
-	ip_num = end_addr - start_addr + 1;
+	ip_num = htonl(end_addr) - htonl(start_addr) + 1;
+	printf("%d", ip_num);
 	pthread_mutex_init(&lock, NULL);
-	ntid = (pthread_t *)malloc(sizeof(pthread_t) * ip_num);
+	ntid = (pthread_t *)malloc(sizeof(pthread_t) * ip_num + 1);
 		
 	pthread_mutex_lock(&lock);		
-	while (start_addr <= end_addr)
+	while (htonl(start_addr) <= htonl(end_addr))
 	{			
+		printf("start thread");
 		pthread_create(&(ntid[i]), NULL, find_host, (void *)&start_addr);
 		pthread_mutex_lock(&lock);
-		start_addr++;
+		start_addr = ntohl(htonl(start_addr) + 1);
 		i++;
 	}
 	pthread_mutex_unlock(&lock);
@@ -272,7 +280,7 @@ void *find_host(void *  arg)
 	}
 	bzero(&present_addr,sizeof(present_addr));
 	present_addr.sin_family=AF_INET;
-	present_addr.sin_addr.s_addr = htonl(ip);
+	present_addr.sin_addr.s_addr = ip;
 	pthread_mutex_unlock(&lock);
 
 	printf("PING (%s): %d bytes data in ICMP packets.\n",
@@ -280,5 +288,24 @@ void *find_host(void *  arg)
 	send_packet(sockfd, sendpacket, present_addr);
 	recv_packet(sockfd, recvpacket, from);
 	close(sockfd);
+}
+void find_end_start_addr(char * interface)
+{
+	int fd;
+	struct ifreq ifr;
+	unsigned long mask;
+	unsigned long this_ip;
+	fd = socket(AF_INET, SOCK_DGRAM, 0);
+	ifr.ifr_addr.sa_family  = AF_INET;
+	strncpy(ifr.ifr_name, interface ,IFNAMSIZ - 1);
+	ioctl(fd, SIOCGIFADDR, &ifr);
+	this_ip = ((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr.s_addr;
+	ioctl(fd, SIOCGIFNETMASK, &ifr);
+	mask = ((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr.s_addr;
+	mask = 0xffffff;// 掩码可以自动获取，但是由于程序线程数量限制（猜测大约300）不能使用更多线程，所以人为规定掩码为255.255.255.0
+	start_addr = this_ip & mask;
+	end_addr = start_addr | (~mask);
+
+	close(fd);
 }
 /*------------- The End -----------*/

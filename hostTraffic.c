@@ -1,9 +1,8 @@
 /*
  * hostTraffic.c
- *
- * Copyright (C) 2014 by wangs
+ *	Capture packages and calculate traffic of hosts in lAN.
  * 
- *
+ * Email:wangsquirrel@gmail.com
  *
  */
 #include <stdio.h>
@@ -12,6 +11,7 @@
 #include <string.h>
 #include <stdarg.h>
 #include <netinet/in.h>
+#include <time.h>
 #include <search.h>
 #include <pcap.h>
 #include <signal.h>
@@ -104,7 +104,7 @@ void sigproc(int sig)
 	char buf2[32];
 	char buf3[32];
 	gettimeofday(&now, NULL);
-	printf("%3s %-13s %13s %13s/s %13s/s\n","seq", "ip address", "traffic B","average B", "current B");
+	printf("%3s %-13s %13s %13s/s %13s/s\n","No.", "ip address", "traffic B","average B", "current B");
 	for (i = 0; i < 255; i++){
 		if(ht_global[i].exist == 1)
 		{
@@ -135,7 +135,7 @@ static void pcap_packet_callback(u_char * args, const struct pcap_pkthdr *header
   
   struct iphdr *iph;//代表IP头部所有内容。
   raw_packet_count++;
-  int i=0;
+//  int i=0;
 	int saddr, daddr;
   u_int32_t ip_offset;
 	struct in_addr ia;
