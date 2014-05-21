@@ -11,9 +11,9 @@ It also can be a sample of netlink ,iptables ,ip_queue ,icmp and  nDPI.
 ###Environment
 testing:
 
-*kernel 2.6.28
+* kernel 2.6.28
 
-*Fedora 10
+* Fedora 10
 ###Do NOT forget:
 modprobe ip_queue
 insmod hook.ko
